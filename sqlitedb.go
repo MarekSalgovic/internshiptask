@@ -11,7 +11,7 @@ type SqliteDB struct {
 
 const (
 	dialect = "sqlite3"
-	dbfile = "internshiptask.db"
+	dbfile  = "internshiptask.db"
 )
 
 func createSQLDB() (SqliteDB, error) {
@@ -24,18 +24,37 @@ func createSQLDB() (SqliteDB, error) {
 	}, nil
 }
 
-func (db SqliteDB) Get() ([]Message, error) {
-	var messages []Message
-	db.db.Find(&messages)
-	return messages, nil
+func (db *SqliteDB) Get() ([]Log, error) {
+	var logs []Log
+	db.db.Find(&logs)
+	return logs, nil
 }
 
-func (db SqliteDB) Create(message Message) (Message, error) {
-	message.Timestamp = time.Now().Unix()
-	db.db.Create(&message)
-	return message, nil
+func (db *SqliteDB) GetByUser(id string) ([]Log, error) {
+	var logs []Log
+	db.db.Where("usrid = ?", id).Find(&logs)
+	return logs, nil
 }
 
-func (Message) TableName() string {
-	return "messages"
+func (db *SqliteDB) Create(log Log) (Log, error) {
+	log.Timestamp = time.Now().Unix()
+	unique := generateRandomString(10)
+	for db.db.Where("Unique_phrase = ?", unique).Error == gorm.ErrRecordNotFound {
+		unique = generateRandomString(10)
+	}
+	log.Unique_phrase = unique
+	db.db.Create(&log)
+	return log, nil
+}
+
+func (db *SqliteDB) Update(id int, m Log) (Log, error) {
+	var log Log
+	db.db.Where("ID = ?", id).First(&log)
+	log = m
+	db.db.Save(&log)
+	return log, nil
+}
+
+func (Log) TableName() string {
+	return "logs"
 }
