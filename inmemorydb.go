@@ -1,6 +1,9 @@
 package main
 
-import "time"
+import (
+	"errors"
+	"time"
+)
 
 type InMemoryDB struct {
 	data map[int]Log
@@ -47,6 +50,9 @@ func (db *InMemoryDB) Create(log Log) (Log, error) {
 }
 
 func (db *InMemoryDB) Update(id int, log Log) (Log, error) {
+	if _, ok := db.data[id]; !ok {
+		return Log{}, errors.New("log not found")
+	}
 	db.data[id] = log
 	return log, nil
 }

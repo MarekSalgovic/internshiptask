@@ -10,11 +10,11 @@ type SqliteDB struct {
 }
 
 const (
-	dialect = "sqlite3"
-	dbfile  = "internshiptask.db"
+	DIALECT = "sqlite3"
+	DBFILE  = "internshiptask.db"
 )
 
-func createSQLDB() (SqliteDB, error) {
+func createSQLDB(dialect string, dbfile string) (SqliteDB, error) {
 	db, err := gorm.Open(dialect, dbfile)
 	if err != nil {
 		return SqliteDB{}, err
@@ -49,7 +49,10 @@ func (db *SqliteDB) Create(log Log) (Log, error) {
 
 func (db *SqliteDB) Update(id int, m Log) (Log, error) {
 	var log Log
-	db.db.Where("ID = ?", id).First(&log)
+	err := db.db.First(&log, id).Error
+	if err != nil {
+		return Log{}, err
+	}
 	log = m
 	db.db.Save(&log)
 	return log, nil
