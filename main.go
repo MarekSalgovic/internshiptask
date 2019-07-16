@@ -6,7 +6,6 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-	"math/rand"
 	"net/http"
 	"strconv"
 )
@@ -19,17 +18,6 @@ type Log struct {
 	Unique_phrase               string `json:"unique_phrase"`
 	Notification_email          string `json:"notification_email" valid:"email"`
 	Notification_email_optional string `json:"notification_email_optional" valid:"email, optional"`
-}
-
-var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
-
-func generateRandomString(n int) string {
-	b := make([]rune, n)
-	for i := range b {
-		b[i] = letters[rand.Intn(len(letters))]
-	}
-
-	return string(b)
 }
 
 type Accessor interface {
@@ -104,7 +92,7 @@ func (s *Service) PutHandler(c echo.Context) error {
 }
 
 func main() {
-	db, err := createSQLDB()
+	db, err := createSQLDB(DIALECT, DBFILE)
 	if err != nil {
 		panic(err)
 	}
