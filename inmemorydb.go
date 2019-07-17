@@ -53,6 +53,9 @@ func (db *InMemoryDB) Update(id int, log Log) (Log, error) {
 	if _, ok := db.data[id]; !ok {
 		return Log{}, errors.New("log not found")
 	}
+	unique := db.data[id].Unique_phrase
+	log.Unique_phrase = unique
+	log.Timestamp = time.Now().Unix()
 	db.data[id] = log
 	return log, nil
 }

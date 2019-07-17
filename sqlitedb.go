@@ -53,7 +53,13 @@ func (db *SqliteDB) Update(id int, m Log) (Log, error) {
 	if err != nil {
 		return Log{}, err
 	}
-	log = m
+	unique := log.Unique_phrase
+	log.Id = m.Id
+	log.Log = m.Log
+	log.Notification_email = m.Notification_email
+	log.Notification_email_optional = m.Notification_email_optional
+	log.Timestamp = time.Now().Unix()
+	log.Unique_phrase = unique
 	db.db.Save(&log)
 	return log, nil
 }

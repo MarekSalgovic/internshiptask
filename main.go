@@ -1,13 +1,17 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	pb "github.com/MarekSalgovic/internshiptask/grpc"
 	"github.com/asaskevich/govalidator"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/labstack/echo"
 	"github.com/spf13/viper"
+	"google.golang.org/grpc"
+	"net"
 
 	//"github.com/labstack/echo/middleware"
 	"github.com/dgrijalva/jwt-go"
@@ -143,25 +147,131 @@ func (s *Service) LoginHandler(c echo.Context) error {
 	return c.String(http.StatusOK, tokenString)
 }
 
+type server struct {
+	svc *Service
+}
+
+func (s *server) GetLogs(ctx context.Context, in *pb.GetRequest) (*pb.GetResponse, error) {
+	var logs []Log
+	logs, err := s.svc.access.Get()
+	if err != nil {
+		return &pb.GetResponse{}, err
+	}
+	var response []*pb.Log
+	for i := 0; i < len(logs); i++ {
+		log := logToGLog(&logs[i])
+		response = append(response, &log)
+	}
+	return &pb.GetResponse{Logs: response}, nil
+}
+
+func (s *server) GetLogsByUser(c context.Context, in *pb.GetByUserRequest) (*pb.GetResponse, error) {
+	var logs []Log
+	usrid := in.Usrid
+	logs, err := s.svc.access.GetByUser(usrid)
+	if err != nil {
+		return &pb.GetResponse{}, err
+	}
+	var response []*pb.Log
+	for i := 0; i < len(logs); i++ {
+		glog := logToGLog(&logs[i])
+		response = append(response, &glog)
+	}
+	return &pb.GetResponse{Logs: response}, nil
+}
+
+func (s *server) PostLog(c context.Context, in *pb.PostRequest) (*pb.PostResponse, error) {
+	var log Log
+	log = gNewLogToLog(in.Log)
+	log, err := s.svc.access.Create(log)
+	if err != nil {
+		return &pb.PostResponse{}, err
+	}
+	return &pb.PostResponse{Log: in.Log}, nil
+}
+
+func (s *server) UpdateLog(c context.Context, in *pb.PutRequest) (*pb.PutResponse, error) {
+	id := in.LogId
+	log := gLogToLog(in.Log)
+	log, err := s.svc.access.Update(int(id), log)
+	if err != nil {
+		return &pb.PutResponse{}, err
+	}
+	return &pb.PutResponse{Log: in.Log}, nil
+}
+
+func Interceptor(c context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	fmt.Println("log")
+	return handler(c, req)
+}
+
 func main() {
+
+	//db := createInMemoryDB()
 	db, err := createSQLDB(DIALECT, DBFILE)
 	if err != nil {
 		panic(err)
 	}
 	defer db.db.Close()
 	db.db.AutoMigrate(&Log{})
+
 	s := NewService(&db)
 
 	viper.SetDefault("port", "8080")
 	viper.AutomaticEnv()
 
-	e := echo.New()
-	//e.Use(middleware.Logger())
+	srvr := grpc.NewServer(grpc.UnaryInterceptor(Interceptor))
+	pb.RegisterLoggerServer(srvr, &server{svc: s})
 
-	e.GET("/logs", s.GetHandler)
-	e.POST("/logs", authorization(s.PostHandler))
-	e.GET("/logs/:usrid", s.GetHandlerByUser)
-	e.PUT("/logs/:id", s.PutHandler)
-	e.POST("/login", s.LoginHandler)
-	e.Logger.Fatal(e.Start(":" + viper.GetString("port")))
+	//e.Use(middleware.Logger())
+	/*
+		e := echo.New()
+
+		e.GET("/logs", s.GetHandler)
+		e.POST("/logs", authorization(s.PostHandler))
+		e.GET("/logs/:usrid", s.GetHandlerByUser)
+		e.PUT("/logs/:id", s.PutHandler)
+		e.POST("/login", s.LoginHandler)
+		e.Logger.Fatal(e.Start(":" + viper.GetString("port")))
+	*/
+	lis, err := net.Listen("tcp", "localhost:3000")
+	fmt.Println("Listening on port 3000...")
+	if err != nil {
+		panic(err)
+	}
+	if err := srvr.Serve(lis); err != nil {
+		panic(err)
+	}
+}
+
+func logToGLog(log *Log) pb.Log {
+	return pb.Log{
+		Id:                        int32(log.Model.ID),
+		Usrid:                     log.Id,
+		Log:                       log.Log,
+		Timestamp:                 int32(log.Timestamp),
+		UniquePhrase:              log.Unique_phrase,
+		NotificationEmail:         log.Notification_email,
+		NotificationEmailOptional: log.Notification_email_optional,
+	}
+}
+
+func gNewLogToLog(log *pb.NewLog) Log {
+	return Log{
+		Id:                          log.Usrid,
+		Log:                         log.Log,
+		Notification_email:          log.NotificationEmail,
+		Notification_email_optional: log.NotificationEmailOptional,
+	}
+}
+
+func gLogToLog(log *pb.Log) Log {
+	return Log{
+		Id:                          log.Usrid,
+		Log:                         log.Log,
+		Timestamp:                   int64(log.Timestamp),
+		Unique_phrase:               log.UniquePhrase,
+		Notification_email:          log.NotificationEmail,
+		Notification_email_optional: log.NotificationEmailOptional,
+	}
 }
