@@ -49,7 +49,10 @@ func (suite *TestSuiteInMemory) SetupTest() {
 }
 
 func (suite *TestSuiteInMemory) TearDownTest() {
-	suite.db = createInMemoryDB()
+	for k := range suite.db.data {
+		delete(suite.db.data, k)
+	}
+	suite.db.id = 0
 }
 
 func (suite *TestSuiteInMemory) TearDownSuite() {
