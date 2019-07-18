@@ -27,7 +27,7 @@ type UpdateLogsTableTest struct {
 }
 
 func testCompareLogs(l1 Log, l2 Log) bool {
-	if l1.Id == l2.Id && l1.Log == l2.Log && l1.Notification_email == l2.Notification_email &&
+	if l1.Id == l2.Id && l1.Message == l2.Message && l1.Notification_email == l2.Notification_email &&
 		l1.Notification_email_optional == l2.Notification_email_optional {
 		return true
 	}

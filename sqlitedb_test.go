@@ -25,25 +25,25 @@ func (suite *TestSuiteSQL) SetupTest() {
 	suite.data = []Log{
 		{
 			Id:                          "user1",
-			Log:                         "abcde",
+			Message:                     "abcde",
 			Timestamp:                   time.Now().Unix(),
 			Notification_email:          "user1@xxx.cz",
 			Notification_email_optional: "",
 		}, {
 			Id:                          "user1",
-			Log:                         "xyz",
+			Message:                     "xyz",
 			Timestamp:                   time.Now().Unix(),
 			Notification_email:          "user1@xxx.cz",
 			Notification_email_optional: "",
 		}, {
 			Id:                          "user2",
-			Log:                         "ABCDEF",
+			Message:                     "ABCDEF",
 			Timestamp:                   time.Now().Unix(),
 			Notification_email:          "user2@xxx.sk",
 			Notification_email_optional: "",
 		}, {
 			Id:                          "user1",
-			Log:                         "123456",
+			Message:                     "123456",
 			Timestamp:                   time.Now().Unix(),
 			Notification_email:          "user1@xxx.cz",
 			Notification_email_optional: "",
@@ -60,7 +60,6 @@ func (suite *TestSuiteSQL) TearDownTest() {
 
 func (suite *TestSuiteSQL) TearDownSuite() {
 	suite.db.db.Close()
-
 }
 
 func TestSuiteSQLFunc(t *testing.T) {
@@ -191,13 +190,13 @@ func (suite *TestSuiteSQL) TestInSqliteDB_Update1() {
 		InputID: 1,
 		InputLog: Log{
 			Id:                          "user2",
-			Log:                         "UPDATE1",
+			Message:                     "UPDATE1",
 			Notification_email:          "user2@abcd.cz",
 			Notification_email_optional: "",
 		},
 		Output: Log{
 			Id:                          "user2",
-			Log:                         "UPDATE1",
+			Message:                     "UPDATE1",
 			Notification_email:          "user2@abcd.cz",
 			Notification_email_optional: "",
 		},
@@ -218,13 +217,13 @@ func (suite *TestSuiteSQL) TestInSqliteDB_Update2() {
 		InputID: 3,
 		InputLog: Log{
 			Id:                          "user1",
-			Log:                         "UPDATE_TEST2",
+			Message:                     "UPDATE_TEST2",
 			Notification_email:          "user1@abcd.cz",
 			Notification_email_optional: "user1@xxx.sk",
 		},
 		Output: Log{
 			Id:                          "user1",
-			Log:                         "UPDATE_TEST2",
+			Message:                     "UPDATE_TEST2",
 			Notification_email:          "user1@abcd.cz",
 			Notification_email_optional: "user1@xxx.sk",
 		},
@@ -245,7 +244,7 @@ func (suite *TestSuiteSQL) TestInSqliteDB_Update3() {
 		InputID: 10,
 		InputLog: Log{
 			Id:                          "user2",
-			Log:                         "UPDATE3",
+			Message:                     "UPDATE3",
 			Notification_email:          "user2@abcd.cz",
 			Notification_email_optional: "",
 		},

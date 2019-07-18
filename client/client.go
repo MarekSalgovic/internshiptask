@@ -32,8 +32,8 @@ func main() {
 		sprava := fmt.Sprintf("sprava cislo #%d", i)
 		_, err = c.PostLog(context.Background(), &pb.PostRequest{
 			Log: &pb.NewLog{
-				Usrid:                     user,
-				Log:                       sprava,
+				Id:                        user,
+				Message:                   sprava,
 				NotificationEmail:         user + "@xxxx.sk",
 				NotificationEmailOptional: user + "@mail.cz",
 			},
@@ -64,7 +64,7 @@ func main() {
 		Log: &pb.Log{
 			Id:                        3,
 			Usrid:                     "user10",
-			Log:                       "zmenena sprava 3",
+			Message:                   "zmenena sprava 3",
 			NotificationEmail:         "user10@abc.sk",
 			NotificationEmailOptional: "user10@xxx.cz"}})
 	if err != nil {

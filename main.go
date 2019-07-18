@@ -22,7 +22,7 @@ import (
 type Log struct {
 	gorm.Model
 	Id                          string `json:"id" gorm:"column:usrid"`
-	Log                         string `json:"log"`
+	Message                     string `json:"message"`
 	Timestamp                   int64  `json:"timestamp"`
 	Unique_phrase               string `json:"unique_phrase"`
 	Notification_email          string `json:"notification_email" valid:"email"`
@@ -113,7 +113,6 @@ var jwtKey = []byte("jwtauth")
 
 func authorization(handlerFunc echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-
 		authorizationHeader := c.Request().Header.Get(echo.HeaderAuthorization)
 		token, err := jwt.Parse(authorizationHeader, func(token *jwt.Token) (i interface{}, e error) {
 			return jwtKey, nil
@@ -183,7 +182,11 @@ func (s *server) GetLogsByUser(c context.Context, in *pb.GetByUserRequest) (*pb.
 func (s *server) PostLog(c context.Context, in *pb.PostRequest) (*pb.PostResponse, error) {
 	var log Log
 	log = gNewLogToLog(in.Log)
-	log, err := s.svc.access.Create(log)
+	_, err := govalidator.ValidateStruct(log)
+	if err != nil {
+		return &pb.PostResponse{}, err
+	}
+	log, err = s.svc.access.Create(log)
 	if err != nil {
 		return &pb.PostResponse{}, err
 	}
@@ -193,7 +196,11 @@ func (s *server) PostLog(c context.Context, in *pb.PostRequest) (*pb.PostRespons
 func (s *server) UpdateLog(c context.Context, in *pb.PutRequest) (*pb.PutResponse, error) {
 	id := in.LogId
 	log := gLogToLog(in.Log)
-	log, err := s.svc.access.Update(int(id), log)
+	_, err := govalidator.ValidateStruct(log)
+	if err != nil {
+		return &pb.PutResponse{}, err
+	}
+	log, err = s.svc.access.Update(int(id), log)
 	if err != nil {
 		return &pb.PutResponse{}, err
 	}
@@ -248,7 +255,7 @@ func logToGLog(log *Log) pb.Log {
 	return pb.Log{
 		Id:                        int32(log.Model.ID),
 		Usrid:                     log.Id,
-		Log:                       log.Log,
+		Message:                   log.Message,
 		Timestamp:                 int32(log.Timestamp),
 		UniquePhrase:              log.Unique_phrase,
 		NotificationEmail:         log.Notification_email,
@@ -258,8 +265,8 @@ func logToGLog(log *Log) pb.Log {
 
 func gNewLogToLog(log *pb.NewLog) Log {
 	return Log{
-		Id:                          log.Usrid,
-		Log:                         log.Log,
+		Id:                          log.Id,
+		Message:                     log.Message,
 		Notification_email:          log.NotificationEmail,
 		Notification_email_optional: log.NotificationEmailOptional,
 	}
@@ -268,7 +275,7 @@ func gNewLogToLog(log *pb.NewLog) Log {
 func gLogToLog(log *pb.Log) Log {
 	return Log{
 		Id:                          log.Usrid,
-		Log:                         log.Log,
+		Message:                     log.Message,
 		Timestamp:                   int64(log.Timestamp),
 		Unique_phrase:               log.UniquePhrase,
 		Notification_email:          log.NotificationEmail,
