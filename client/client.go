@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	pb "github.com/MarekSalgovic/internshiptask/grpc"
+	"github.com/golang/protobuf/ptypes/empty"
 	"google.golang.org/grpc"
 )
 
@@ -18,7 +19,7 @@ func main() {
 	}
 	defer conn.Close()
 	c := pb.NewLoggerClient(conn)
-	r, err := c.GetLogs(context.Background(), &pb.GetRequest{})
+	r, err := c.GetLogs(context.Background(), &empty.Empty{})
 	if err != nil {
 		panic(err)
 	}
@@ -40,7 +41,7 @@ func main() {
 		})
 	}
 
-	r, err = c.GetLogs(context.Background(), &pb.GetRequest{})
+	r, err = c.GetLogs(context.Background(), &empty.Empty{})
 	if err != nil {
 		panic(err)
 	}
@@ -71,7 +72,7 @@ func main() {
 		panic(err)
 	}
 	fmt.Println("<----------------------UPDATE MESSAGE ID: 3---------------------->")
-	r, err = c.GetLogs(context.Background(), &pb.GetRequest{})
+	r, err = c.GetLogs(context.Background(), &empty.Empty{})
 	if err != nil {
 		panic(err)
 	}
