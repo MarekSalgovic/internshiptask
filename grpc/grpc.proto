@@ -1,11 +1,14 @@
 syntax = "proto3";
 package grpc;
 
-import "/Users/mareksalgovic/go/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis/google/api/annotations.proto";
+import "github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis/google/api/annotations.proto";
+import "github.com/google/protobuf/src/google/protobuf/empty.proto";
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
 
+option (gogoproto.populate_all) = true;
 
 service Logger {
-    rpc GetLogs (GetRequest) returns (GetResponse) {
+    rpc GetLogs (google.protobuf.Empty) returns (GetResponse) {
         option (google.api.http) = {
             get: "/logs"
         };
@@ -29,12 +32,11 @@ service Logger {
     }
 }
 
+
 message GetByUserRequest{
     string usrid = 1;
 }
 
-message GetRequest{
-}
 message GetResponse{
     repeated Log logs = 1;
 }
@@ -55,10 +57,10 @@ message PutResponse{
 }
 
 message NewLog{
-    string id = 1;
+    string id = 1  [(gogoproto.moretags) = "gorm:\"column:usrid\""];
     string message = 2;
-    string notification_email = 3;
-    string notification_email_optional = 4;
+    string notification_email = 3  [(gogoproto.moretags) = "valid:\"email\""];
+    string notification_email_optional = 4 [(gogoproto.moretags) = "valid:\"email, optional\""];
 }
 
 message Log{
@@ -67,8 +69,8 @@ message Log{
     string message = 3;
     int32 timestamp = 4;
     string unique_phrase = 5;
-    string notification_email = 6;
-    string notification_email_optional = 7;
+    string notification_email = 6;  [(gogoproto.moretags) = "valid:\"email\""];
+    string notification_email_optional = 7; [(gogoproto.moretags) = "valid:\"email, optional\""];
 }
 
 

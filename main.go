@@ -6,6 +6,7 @@ import (
 	"fmt"
 	pb "github.com/MarekSalgovic/internshiptask/grpc"
 	"github.com/asaskevich/govalidator"
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/labstack/echo"
@@ -150,7 +151,7 @@ type server struct {
 	svc *Service
 }
 
-func (s *server) GetLogs(ctx context.Context, in *pb.GetRequest) (*pb.GetResponse, error) {
+func (s *server) GetLogs(ctx context.Context, empty *empty.Empty) (*pb.GetResponse, error) {
 	var logs []Log
 	logs, err := s.svc.access.Get()
 	if err != nil {
@@ -181,11 +182,11 @@ func (s *server) GetLogsByUser(c context.Context, in *pb.GetByUserRequest) (*pb.
 
 func (s *server) PostLog(c context.Context, in *pb.PostRequest) (*pb.PostResponse, error) {
 	var log Log
-	log = gNewLogToLog(in.Log)
-	_, err := govalidator.ValidateStruct(log)
+	_, err := govalidator.ValidateStruct(in.Log)
 	if err != nil {
 		return &pb.PostResponse{}, err
 	}
+	log = gNewLogToLog(in.Log)
 	log, err = s.svc.access.Create(log)
 	if err != nil {
 		return &pb.PostResponse{}, err
@@ -195,11 +196,11 @@ func (s *server) PostLog(c context.Context, in *pb.PostRequest) (*pb.PostRespons
 
 func (s *server) UpdateLog(c context.Context, in *pb.PutRequest) (*pb.PutResponse, error) {
 	id := in.LogId
-	log := gLogToLog(in.Log)
-	_, err := govalidator.ValidateStruct(log)
+	_, err := govalidator.ValidateStruct(in.Log)
 	if err != nil {
 		return &pb.PutResponse{}, err
 	}
+	log := gLogToLog(in.Log)
 	log, err = s.svc.access.Update(int(id), log)
 	if err != nil {
 		return &pb.PutResponse{}, err
@@ -230,10 +231,9 @@ func main() {
 	srvr := grpc.NewServer(grpc.UnaryInterceptor(Interceptor))
 	pb.RegisterLoggerServer(srvr, &server{svc: s})
 
-	//e.Use(middleware.Logger())
 	/*
 		e := echo.New()
-
+		e.Use(middleware.Logger())
 		e.GET("/logs", s.GetHandler)
 		e.POST("/logs", authorization(s.PostHandler))
 		e.GET("/logs/:usrid", s.GetHandlerByUser)

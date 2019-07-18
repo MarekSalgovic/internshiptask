@@ -12,6 +12,8 @@ require (
 	github.com/denisenkom/go-mssqldb v0.0.0-20190715232110-2b613d287457 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-kit/kit v0.9.0 // indirect
+	github.com/gogo/protobuf v1.2.1
+	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/golang/groupcache v0.0.0-20190702054246-869f871628b6 // indirect
 	github.com/golang/protobuf v1.3.2
 	github.com/grpc-ecosystem/grpc-gateway v1.9.4
@@ -43,7 +45,7 @@ require (
 	golang.org/x/mobile v0.0.0-20190711165009-e47acb2ca7f9 // indirect
 	golang.org/x/net v0.0.0-20190628185345-da137c7871d7 // indirect
 	golang.org/x/sys v0.0.0-20190712062909-fae7ac547cb7 // indirect
-	golang.org/x/tools v0.0.0-20190716221150-e98af2309876 // indirect
+	golang.org/x/tools v0.0.0-20190717194535-128ec6dfca09 // indirect
 	google.golang.org/genproto v0.0.0-20190716160619-c506a9f90610
 	google.golang.org/grpc v1.22.0
 )
