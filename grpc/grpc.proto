@@ -1,0 +1,75 @@
+syntax = "proto3";
+package grpc;
+
+import "/Users/mareksalgovic/go/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis/google/api/annotations.proto";
+
+
+service Logger {
+    rpc GetLogs (GetRequest) returns (GetResponse) {
+        option (google.api.http) = {
+            get: "/logs"
+        };
+    }
+    rpc GetLogsByUser (GetByUserRequest) returns (GetResponse) {
+        option (google.api.http) = {
+            get: "/logs/{usrid}"
+        };
+    }
+    rpc PostLog (PostRequest) returns (PostResponse) {
+        option (google.api.http) = {
+            post: "/logs"
+            body: "log"
+        };
+    }
+    rpc UpdateLog(PutRequest) returns (PutResponse) {
+        option (google.api.http) = {
+            put: "/logs/{logId}"
+            body: "log"
+        };
+    }
+}
+
+message GetByUserRequest{
+    string usrid = 1;
+}
+
+message GetRequest{
+}
+message GetResponse{
+    repeated Log logs = 1;
+}
+message PostRequest{
+    NewLog log = 1;
+}
+message PostResponse{
+    NewLog log = 1;
+}
+
+message PutRequest{
+    int32 logId = 1;
+    Log log = 2;
+}
+
+message PutResponse{
+    Log log = 1;
+}
+
+message NewLog{
+    string id = 1;
+    string message = 2;
+    string notification_email = 3;
+    string notification_email_optional = 4;
+}
+
+message Log{
+    int32 id = 1;
+    string usrid = 2;
+    string message = 3;
+    int32 timestamp = 4;
+    string unique_phrase = 5;
+    string notification_email = 6;
+    string notification_email_optional = 7;
+}
+
+
+

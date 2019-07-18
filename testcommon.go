@@ -1,9 +1,5 @@
 package main
 
-import (
-	"time"
-)
-
 type CreateLogTableTest struct {
 	Name   string
 	Input  Log
@@ -30,36 +26,8 @@ type UpdateLogsTableTest struct {
 	OutputError bool
 }
 
-var testdata = []Log{
-	{
-		Id:                          "user1",
-		Log:                         "abcde",
-		Timestamp:                   time.Now().Unix(),
-		Notification_email:          "user1@xxx.cz",
-		Notification_email_optional: "",
-	}, {
-		Id:                          "user1",
-		Log:                         "xyz",
-		Timestamp:                   time.Now().Unix(),
-		Notification_email:          "user1@xxx.cz",
-		Notification_email_optional: "",
-	}, {
-		Id:                          "user2",
-		Log:                         "ABCDEF",
-		Timestamp:                   time.Now().Unix(),
-		Notification_email:          "user2@xxx.sk",
-		Notification_email_optional: "",
-	}, {
-		Id:                          "user1",
-		Log:                         "123456",
-		Timestamp:                   time.Now().Unix(),
-		Notification_email:          "user1@xxx.cz",
-		Notification_email_optional: "",
-	},
-}
-
 func testCompareLogs(l1 Log, l2 Log) bool {
-	if l1.Id == l2.Id && l1.Log == l2.Log && l1.Notification_email == l2.Notification_email &&
+	if l1.Id == l2.Id && l1.Message == l2.Message && l1.Notification_email == l2.Notification_email &&
 		l1.Notification_email_optional == l2.Notification_email_optional {
 		return true
 	}
